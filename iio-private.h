@@ -24,6 +24,10 @@
 
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef _WIN32
 #define snprintf sprintf_s
 #define strerror_r(err, buf, len) strerror_s(buf, len, err)
@@ -213,5 +217,10 @@ __api int iio_context_factory_unregister(const char *name);
 __api const char * iio_context_factory_get_property(
 		struct iio_context_factory *factory, const char *key);
 __api void iio_context_dump_factories(void);
+
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __IIO_PRIVATE_H__ */
