@@ -141,6 +141,14 @@ __api struct iio_context * iio_create_xml_context_mem(
  * @return On failure, NULL is returned and errno is set appropriately */
 __api struct iio_context * iio_create_network_context(const char *host);
 
+/**
+ * @brief Create a dynamic context
+ * The context implementation is stored in a dynamic library that is loaded
+ * during the call
+ * @param name The name of the context
+ * @return On success, a pointer to an iio_context structure
+ * @return On failure, NULL is returned and errno is set appropriately */
+__api struct iio_context * iio_create_context(const char *name);
 
 /** @brief Duplicate a pre-existing IIO context
  * @param ctx A pointer to an iio_context structure

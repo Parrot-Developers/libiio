@@ -238,6 +238,28 @@ int iio_context_set_timeout(struct iio_context *ctx, unsigned int timeout)
 		return -ENOSYS;
 }
 
+void iio_context_set_name(struct iio_context *ctx, const char *name)
+{
+	ctx->name = name;
+}
+
+void iio_context_set_ops(struct iio_context *ctx,
+		const struct iio_backend_ops *ops)
+{
+	ctx->ops = ops;
+}
+
+void iio_context_set_pdata(struct iio_context *ctx,
+		struct iio_context_pdata *pdata)
+{
+	ctx->pdata = pdata;
+}
+
+struct iio_context_pdata * iio_context_get_pdata(const struct iio_context *ctx)
+{
+	return ctx->pdata;
+}
+
 struct iio_context * iio_context_clone(const struct iio_context *ctx)
 {
 	if (ctx->ops->clone) {

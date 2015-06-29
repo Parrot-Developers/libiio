@@ -21,6 +21,7 @@
 
 /* Include public interface */
 #include "iio.h"
+#include "iio-backend.h"
 
 #include <stdbool.h>
 
@@ -57,48 +58,6 @@ enum iio_modifier {
 	IIO_MOD_Q,
 };
 
-struct iio_backend_ops {
-	struct iio_context * (*clone)(const struct iio_context *ctx);
-	ssize_t (*read)(const struct iio_device *dev, void *dst, size_t len,
-			uint32_t *mask, size_t words);
-	ssize_t (*write)(const struct iio_device *dev,
-			const void *src, size_t len);
-	int (*open)(const struct iio_device *dev,
-			size_t samples_count, bool cyclic);
-	int (*close)(const struct iio_device *dev);
-	int (*get_poll_fd)(const struct iio_device *dev);
-	int (*set_blocking_mode)(const struct iio_device *dev, bool blocking);
-
-	int (*set_kernel_buffers_count)(const struct iio_device *dev,
-			unsigned int nb_blocks);
-	ssize_t (*get_buffer)(const struct iio_device *dev,
-			void **addr_ptr, size_t bytes_used,
-			uint32_t *mask, size_t words);
-
-	ssize_t (*read_device_attr)(const struct iio_device *dev,
-			const char *attr, char *dst, size_t len, bool is_debug);
-	ssize_t (*write_device_attr)(const struct iio_device *dev,
-			const char *attr, const char *src,
-			size_t len, bool is_debug);
-	ssize_t (*read_channel_attr)(const struct iio_channel *chn,
-			const char *attr, char *dst, size_t len);
-	ssize_t (*write_channel_attr)(const struct iio_channel *chn,
-			const char *attr, const char *src, size_t len);
-
-	int (*get_trigger)(const struct iio_device *dev,
-			const struct iio_device **trigger);
-	int (*set_trigger)(const struct iio_device *dev,
-			const struct iio_device *trigger);
-
-	void (*shutdown)(struct iio_context *ctx);
-
-	int (*get_version)(const struct iio_context *ctx, unsigned int *major,
-			unsigned int *minor, char git_tag[8]);
-
-	int (*set_timeout)(struct iio_context *ctx, unsigned int timeout);
-};
-
-struct iio_context_pdata;
 struct iio_device_pdata;
 struct iio_channel_pdata;
 

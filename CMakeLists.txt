@@ -45,6 +45,7 @@ endif()
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	option(WITH_IIOD "Build the IIO Daemon" ON)
 	option(WITH_LOCAL_BACKEND "Enable the local backend" ON)
+	option(WITH_DYNAMIC_BACKEND "Enable the dynamic backend" ON)
 
 	if (WITH_IIOD AND NOT WITH_LOCAL_BACKEND)
 		message(SEND_ERROR "IIOD can only be enabled if the local backend is enabled")
@@ -70,7 +71,7 @@ find_library(PTHREAD_LIBRARIES pthread)
 include(FindLibXml2)
 
 set(LIBIIO_CFILES channel.c device.c context.c buffer.c utilities.c)
-set(LIBIIO_HEADERS iio.h)
+set(LIBIIO_HEADERS iio.h iio-backend.h)
 
 add_definitions(-D_POSIX_C_SOURCE=200809L -DLIBIIO_EXPORTS=1)
 
@@ -105,6 +106,11 @@ add_definitions(-DLIBIIO_VERSION_GIT="${LIBIIO_VERSION_GIT}")
 if(WITH_LOCAL_BACKEND)
 	add_definitions(-DLOCAL_BACKEND=1)
 	set(LIBIIO_CFILES ${LIBIIO_CFILES} local.c)
+endif()
+
+if(WITH_DYNAMIC_BACKEND)
+	add_definitions(-DDYNAMIC_BACKEND=1)
+	set(LIBIIO_CFILES ${LIBIIO_CFILES} dynamic.c)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -157,7 +163,7 @@ install(FILES ${LIBIIO_PC} DESTINATION "${INSTALL_PKGCONFIG_DIR}")
 #configure_file(python/setup.py.in ${SETUP_PY} @ONLY)
 
 add_library(iio ${LIBIIO_CFILES} ${LIBIIO_HEADERS})
-set_target_properties(iio PROPERTIES VERSION ${VERSION} SOVERSION ${LIBIIO_VERSION_MAJOR} FRAMEWORK TRUE PUBLIC_HEADER ${LIBIIO_HEADERS})
+set_target_properties(iio PROPERTIES VERSION ${VERSION} SOVERSION ${LIBIIO_VERSION_MAJOR} FRAMEWORK TRUE PUBLIC_HEADER "${LIBIIO_HEADERS}")
 target_link_libraries(iio LINK_PRIVATE ${LIBS_TO_LINK})
 
 if (MSVC)
