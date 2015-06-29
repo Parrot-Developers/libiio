@@ -66,6 +66,7 @@ struct iio_backend_ops {
 	int (*open)(const struct iio_device *dev,
 			size_t samples_count, bool cyclic);
 	int (*close)(const struct iio_device *dev);
+	int (*get_poll_fd)(const struct iio_device *dev);
 
 	ssize_t (*get_buffer)(const struct iio_device *dev,
 			void **addr_ptr, size_t bytes_used,
