@@ -103,6 +103,19 @@ int iio_buffer_get_poll_fd(struct iio_buffer *buffer)
 	return iio_device_get_poll_fd(buffer->dev);
 }
 
+int iio_buffer_set_blocking_mode(struct iio_buffer *buffer, bool blocking)
+{
+	int ret;
+
+	if (buffer->dev_is_high_speed) {
+		ret = -ENOSYS;
+	} else {
+		ret = iio_device_set_blocking_mode(buffer->dev, blocking);
+	}
+
+	return ret;
+}
+
 ssize_t iio_buffer_refill(struct iio_buffer *buffer)
 {
 	ssize_t read;
