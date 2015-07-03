@@ -20,3 +20,16 @@ LOCAL_CMAKE_CONFIGURE_ARGS := -DWITH_IIOD=FALSE
 
 include $(BUILD_CMAKE)
 
+###############################################################################
+# libiio-plugins-private
+###############################################################################
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libiio-plugins-private
+LOCAL_DESCRIPTION := Export of libiio headers for plugin implementors
+LOCAL_CATEGORY_PATH := libs/libiio
+
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
+
+include $(BUILD_CUSTOM)
