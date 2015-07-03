@@ -94,6 +94,15 @@ __api void iio_strerror(int err, char *dst, size_t len);
  * @struct iio_context
  * @brief Contains the representation of an IIO context */
 
+/**
+ * @struct iio_property
+ * @brief Simple key / value pair of strings
+ */
+struct iio_property {
+	char *key;	/**< key (index) of the property */
+	char *value;	/**< value of the property */
+};
+
 
 /** @brief Create a context from local or remote IIO devices
  * @return On success, A pointer to an iio_context structure
