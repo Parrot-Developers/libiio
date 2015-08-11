@@ -71,6 +71,7 @@ include(FindLibXml2)
 
 set(LIBIIO_CFILES channel.c device.c context.c buffer.c utilities.c plugins.c)
 set(LIBIIO_HEADERS iio.h)
+set(LIBS_TO_LINK dl)
 
 add_definitions(-D_POSIX_C_SOURCE=200809L -DLIBIIO_EXPORTS=1)
 
