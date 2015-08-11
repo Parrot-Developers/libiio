@@ -64,8 +64,13 @@ if (ENABLE_IPV6)
 	endif()
 endif()
 
-find_library(AVAHI_CLIENT_LIBRARIES avahi-client)
-find_library(AVAHI_COMMON_LIBRARIES avahi-common)
+
+option(WITH_AVAHI "Enable Avahi for the network backend" ON)
+
+if (WITH_AVAHI)
+    find_library(AVAHI_CLIENT_LIBRARIES avahi-client)
+    find_library(AVAHI_COMMON_LIBRARIES avahi-common)
+endif()
 find_library(PTHREAD_LIBRARIES pthread)
 include(FindLibXml2)
 

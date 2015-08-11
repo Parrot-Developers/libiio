@@ -18,10 +18,10 @@ LOCAL_EXPORT_LDLIBS = -liio
 # a real solution so that we can use iiod
 LOCAL_CMAKE_CONFIGURE_ARGS := -DWITH_IIOD=FALSE
 
-# Using network backend make CMake search avahi in PC's system folders
-# even if we build a chrooted environment. So let's deactivate it to avoid
-# libiio being dependent of an inexisting lib-avahi.
-LOCAL_CMAKE_CONFIGURE_ARGS += -DWITH_NETWORK_BACKEND=FALSE
+# When we build a native-chrooted environment, libiio can be built with avahi although
+# it does not exist in the workspace. So let's deactivate it to avoid
+# libiio being dependent of a nonexistent lib-avahi.
+LOCAL_CMAKE_CONFIGURE_ARGS += -DWITH_AVAHI=FALSE
 
 include $(BUILD_CMAKE)
 
