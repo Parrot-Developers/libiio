@@ -22,6 +22,8 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <fnmatch.h>
 
 #include "iio.h"
 
@@ -84,8 +86,6 @@ void iio_init_plugins(void)
 		free(namelist[n]);
 	}
 	free(namelist);
-
-	iio_context_dump_factories();
 }
 
 void iio_cleanup_plugins(void)
