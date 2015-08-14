@@ -110,30 +110,24 @@ __api void iio_strerror(int err, char *dst, size_t len);
  * @struct iio_context
  * @brief Contains the representation of an IIO context */
 
-/**
- * @struct iio_property
- * @brief Simple key / value pair of strings
- */
-struct iio_property {
-	char *key;	/**< key (index) of the property */
-	char *value;	/**< value of the property */
-};
-
 /** @brief Create a context knowing it's name
  * @param name Name of the context to create
- * @param properties Properties for configuring the creation of the context.
+ * @param envz Properties for configuring the creation of the context.
  * Depends on the properties of influence for the given context. For example,
- * the network context supports the "hostname" property, while the local context
- * supports none. The array must be NULL-terminated, that is, the last property
- * must have a NULL name. NULL must be passed if there are no properties.
+ * the network context could the "hostname" property, while the local context
+ * would supports none. The envz array must be created by the libc's argz/envz
+ * API. Please see iio_test_plugin.c for an example. Can be NULL, in this case,
+ * no property will be used to tweak the context creation and envz_len will be
+ * ignored.
+ * @param envz_len size of the envz buffer
  * @return On success, A pointer to an iio_context structure
  * @return On failure, NULL is returned and errno is set appropriately
  *
- * If an additional libiio backends has been registered by a plugin, one will be
+ * If an additional libiio backend has been registered by a plugin, one will be
  * able to create a corresponding context with this function, by passing the
  * plugin's name. */
 __api struct iio_context * iio_create_context(const char *name,
-		const struct iio_property *properties);
+		const char *envz, size_t envz_len);
 
 /** @brief Create a context from local or remote IIO devices
  * @return On success, A pointer to an iio_context structure

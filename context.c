@@ -21,72 +21,41 @@
 
 #include <errno.h>
 #include <string.h>
+#include <argz.h>
+#include <envz.h>
 
 #ifdef _WIN32
 #define LOCAL_BACKEND 0
 #define NETWORK_BACKEND 1
 #endif
 
-# ifndef MAX_FACTORIES
+#ifndef MAX_FACTORIES
 #define MAX_FACTORIES 10
 #endif /* MAX_FACTORIES */
+
+#ifndef IIO_BACKEND_PLUGIN_ENV_VAR
+#define IIO_BACKEND_PLUGIN_ENV_VAR "IIO_BACKEND_PLUGIN"
+#endif /* IIO_BACKEND_PLUGIN_ENV_VAR */
+
+#ifndef IIO_PLUGIN_DESC_SEPARATOR
+#define IIO_PLUGIN_DESC_SEPARATOR ':'
+#endif /* IIO_PLUGIN_DESC_SEPARATOR */
 
 static struct iio_context_factory *context_factories[MAX_FACTORIES];
 static unsigned factories_nb;
 
-static int factory_set_property(struct iio_context_factory *factory,
-		const char *key, const char *value)
-{
-	unsigned i;
-	struct iio_property *p;
-
-	if (!factory || !key || !*key || !value)
-		return -EINVAL;
-
-	for (i = 0; i < MAX_FACTORY_PROPERTIES; i++)
-		if (!factory->properties[i].key)
-			break;
-		else if (!strcmp(factory->properties[i].key, key))
-			return -EBADSLT;
-
-	if (i > MAX_FACTORY_PROPERTIES) {
-		ERROR("no room left for storing more factory properties");
-		return -ENOMEM;
-	}
-	p = factory->properties + i;
-
-	p->key = strdup(key);
-	if (!p->key)
-		return -ENOMEM;
-
-	p->value = strdup(value);
-	if (!p->value) {
-		free(p->key);
-		p->key = NULL;
-
-		return -ENOMEM;
-	}
-
-	return 0;
-}
-
 static int factory_set_properties(struct iio_context_factory *factory,
-		const struct iio_property *properties)
+		const char *envz, size_t envz_len)
 {
-	int ret;
-	const struct iio_property *p;
-
-	if (!factory|| !properties || !properties[0].key)
+	if (!factory|| !envz || !*envz || envz_len == 0)
 		return -EINVAL;
 
-	for (p = properties; p->key; p++) {
-		ret = factory_set_property(factory, p->key, p->value);
-		if (ret < 0) {
-			ERROR("%s factory_set_property: %s\n", __func__,
-					strerror(-ret));
-			return ret;
-		}
-	}
+	factory->envz = realloc(factory->envz, envz_len);
+	if (!factory->envz)
+		return -errno;
+
+	memcpy(factory->envz, envz, envz_len);
+	factory->envz_len = envz_len;
 
 	return 0;
 }
@@ -96,7 +65,8 @@ static struct iio_context_factory * get_context_factory(const char *name)
 	unsigned i;
 
 	for (i = 0; i < MAX_FACTORIES; i++)
-		if (!strcmp(context_factories[i]->name, name))
+		if (context_factories[i] &&
+				!strcmp(context_factories[i]->name, name))
 			return context_factories[i];
 
 	errno = ENOSYS;
@@ -104,8 +74,8 @@ static struct iio_context_factory * get_context_factory(const char *name)
 	return NULL;
 }
 
-struct iio_context * iio_create_context(const char *name,
-		const struct iio_property *properties)
+struct iio_context * iio_create_context(const char *name, const char *envz,
+		size_t envz_len)
 {
 	int ret;
 	struct iio_context_factory *factory;
@@ -119,8 +89,8 @@ struct iio_context * iio_create_context(const char *name,
 	if (!factory)
 		return NULL;
 
-	if (properties) {
-		ret = factory_set_properties(factory, properties);
+	if (envz) {
+		ret = factory_set_properties(factory, envz, envz_len);
 		if (ret < 0) {
 			errno = -ret;
 			return NULL;
@@ -145,21 +115,11 @@ int iio_context_factory_register(struct iio_context_factory *factory)
 	return 0;
 }
 
-/* cleanup all the properties registered in a context factory */
-static void cleanup_properties(struct iio_context_factory *factory)
+static void cleanup_factory(struct iio_context_factory *factory)
 {
-	unsigned j;
-	struct iio_property *p;
-
-	/* cleanup all the properties registered in the factory */
-	for (j = 0; j < MAX_FACTORY_PROPERTIES; j++) {
-		p = factory->properties + j;
-		if (p->key)
-			free(p->key);
-		if (p->value)
-			free(p->value);
-		memset(p, 0, sizeof(*p));
-	}
+	free(factory->envz);
+	factory->envz = NULL;
+	factory->envz_len = 0;
 }
 
 int iio_context_factory_unregister(const char *name)
@@ -177,7 +137,8 @@ int iio_context_factory_unregister(const char *name)
 	if (i == MAX_FACTORIES)
 		return -ENOENT;
 
-	cleanup_properties(context_factories[i]);
+	if (context_factories[i]->envz)
+		cleanup_factory(context_factories[i]);
 
 	factories_nb--;
 	for (; i + 1 < MAX_FACTORIES; i++)
@@ -190,19 +151,17 @@ int iio_context_factory_unregister(const char *name)
 const char * iio_context_factory_get_property(
 		struct iio_context_factory *factory, const char *key)
 {
-	unsigned i;
+	const char *value;
 
 	if (!factory || !key || !*key) {
 		errno = EINVAL;
 		return NULL;
 	}
 
-	for (i = 0; i < MAX_FACTORY_PROPERTIES; i++)
-		if (!factory->properties[i].key)
-			break;
-		else
-			if (!strcmp(key, factory->properties[i].key))
-				return factory->properties[i].value;
+	value = envz_get(factory->envz, factory->envz_len, key);
+
+	if (value)
+		return value;
 
 	errno = ENOENT;
 
@@ -406,6 +365,46 @@ static void reorder_channels(struct iio_device *dev)
 	} while (found);
 }
 
+static void str_free(char **str)
+{
+	if (!str || !*str)
+		return;
+
+	free(*str);
+
+	*str = NULL;
+}
+
+static struct iio_context *create_context_from_environment(const char *plugin_desc)
+{
+	error_t err;
+	char *__attribute__((cleanup(str_free)))argz = NULL;
+	size_t argz_len;
+	char *__attribute__((cleanup(str_free)))plugin = NULL;
+	char *entry;
+
+	err = argz_create_sep(plugin_desc, IIO_PLUGIN_DESC_SEPARATOR, &argz,
+			&argz_len);
+	if (err != 0) {
+		errno = err;
+		return NULL;
+	}
+
+	entry = argz_next(argz, argz_len, NULL);
+	if (!entry) {
+		ERROR("empty "IIO_BACKEND_PLUGIN_ENV_VAR" environment var\n");
+		errno = EINVAL;
+		return NULL;
+	}
+
+	plugin = strdup(entry);
+	if (!plugin)
+		return NULL;
+	argz_delete(&argz, &argz_len, entry);
+
+	return iio_create_context(plugin, argz, argz_len);
+}
+
 void iio_context_init(struct iio_context *ctx)
 {
 	unsigned int i;
@@ -443,6 +442,19 @@ struct iio_context * iio_context_clone(const struct iio_context *ctx)
 
 struct iio_context * iio_create_default_context(void)
 {
+	/*
+	 * the IIO_BACKEND_PLUGIN shall contain a string of the form :
+	 *   PLUGIN_NAME[:KEY1=VALUE1[:KEY2=VALUE2[...]]]
+	 *   with (KEYX, VALUEX) pairs being the factory properties used to
+	 *   tune the factory's constructor's behaviour
+	 */
+	char *plugin_desc = getenv("IIO_BACKEND_PLUGIN");
+
+	DEBUG("IIO_BACKEND_PLUGIN contains \"%s\"\n", plugin_desc);
+
+	if (plugin_desc)
+		return create_context_from_environment(plugin_desc);
+
 #if NETWORK_BACKEND
 	char *hostname = getenv("IIOD_REMOTE");
 
