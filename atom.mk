@@ -12,18 +12,34 @@ LOCAL_CATEGORY_PATH := libs/libiio
 
 LOCAL_LIBRARIES := libxml2
 
-LOCAL_EXPORT_LDLIBS = -liio
+LOCAL_SRC_FILES := \
+	channel.c \
+	device.c \
+	context.c \
+	buffer.c \
+	utilities.c \
+	plugins.c \
+	local.c \
+	network.c \
+	xml.c
 
-# cmake complains about the lack of pthread TODO get rid of this hack and find
-# a real solution so that we can use iiod
-LOCAL_CMAKE_CONFIGURE_ARGS := -DWITH_IIOD=FALSE
+LOCAL_CFLAGS := -DHAVE_IPV6=1 \
+	-DHAVE_PTHREAD=0 \
+	-DLIBIIO_EXPORTS=1 \
+	-DLIBIIO_VERSION_GIT=\"dc05765\" \
+	-DLIBIIO_VERSION_MAJOR=0 \
+	-DLIBIIO_VERSION_MINOR=5 \
+	-DLOCAL_BACKEND=1 \
+	-DNETWORK_BACKEND=1 \
+	-DWITH_NETWORK_GET_BUFFER=1\
+	 -D_GNU_SOURCE=1 \
+	-D_POSIX_C_SOURCE=200809L \
+	-Diio_EXPORTS \
+	-fvisibility=hidden
 
-# When we build a native-chrooted environment, libiio can be built with avahi although
-# it does not exist in the workspace. So let's deactivate it to avoid
-# libiio being dependent of a nonexistent lib-avahi.
-LOCAL_CMAKE_CONFIGURE_ARGS += -DWITH_AVAHI=FALSE
+LOCAL_LDLIBS := -ldl
 
-include $(BUILD_CMAKE)
+include $(BUILD_LIBRARY)
 
 ###############################################################################
 # libiio-plugins-private
