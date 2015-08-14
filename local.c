@@ -940,7 +940,6 @@ static int local_set_trigger(const struct iio_device *dev,
 
 static bool is_channel(const char *attr)
 {
-	unsigned int i;
 	char *ptr = NULL;
 	if (!strncmp(attr, "in_timestamp_", sizeof("in_timestamp_") - 1))
 		return true;
@@ -1105,7 +1104,7 @@ static int add_device_to_context(struct iio_context *ctx,
  */
 static unsigned int is_global_attr(struct iio_channel *chn, const char *attr)
 {
-	unsigned int i, len;
+	unsigned int len;
 	char *ptr;
 
 	if (!chn->is_output && !strncmp(attr, "in_", 3))
