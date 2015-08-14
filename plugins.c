@@ -45,6 +45,7 @@ static int pattern_filter(const struct dirent *d)
 }
 
 static void *plugins[PLUGINS_MAX];
+static bool plugins_initialized;
 
 void iio_init_plugins(void)
 {
@@ -53,6 +54,11 @@ void iio_init_plugins(void)
 	struct dirent **namelist;
 	char *path;
 	void **current_plugin;
+
+	/* don't register plugins twice */
+	if (plugins_initialized)
+		return;
+	plugins_initialized = true;
 
 	n = scandir(PLUGINS_DEFAULT_DIR, &namelist, pattern_filter, NULL);
 	if (n == -1) {
@@ -85,6 +91,10 @@ void iio_init_plugins(void)
 void iio_cleanup_plugins(void)
 {
 	int i = PLUGINS_MAX;
+
+	if (!plugins_initialized)
+		return;
+	plugins_initialized = false;
 
 	while (i--)
 		if (plugins[i])

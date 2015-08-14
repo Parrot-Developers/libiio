@@ -64,6 +64,7 @@ static struct iio_context_factory * get_context_factory(const char *name)
 {
 	unsigned i;
 
+	iio_init_plugins();
 	for (i = 0; i < MAX_FACTORIES; i++)
 		if (context_factories[i] &&
 				!strcmp(context_factories[i]->name, name))
