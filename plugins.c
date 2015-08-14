@@ -53,6 +53,7 @@ void iio_init_plugins(void)
 {
 	int ret;
 	int n;
+	int i;
 	struct dirent **namelist;
 	char *path;
 	void **current_plugin;
@@ -69,9 +70,9 @@ void iio_init_plugins(void)
 	}
 
 	current_plugin = plugins;
-	while (n--) {
+	for (i = 0; i < n; i++) {
 		ret = asprintf(&path, PLUGINS_DEFAULT_DIR "%s",
-				namelist[n]->d_name);
+				namelist[i]->d_name);
 		if (ret == -1) {
 			ERROR("%s asprintf error\n", __func__);
 			return;
@@ -83,7 +84,7 @@ void iio_init_plugins(void)
 			WARNING("%s dlopen: %s\n", __func__, dlerror());
 		else
 			current_plugin++;
-		free(namelist[n]);
+		free(namelist[i]);
 	}
 	free(namelist);
 }
