@@ -54,3 +54,47 @@ LOCAL_CATEGORY_PATH := libs/libiio
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
 
 include $(BUILD_CUSTOM)
+
+###############################################################################
+# libiio-test-plugin
+###############################################################################
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := libiio-test-plugin
+LOCAL_CATEGORY_PATH := libs/libiio
+LOCAL_DESCRIPTION := libiio plugin implementing a backend exposing a false iio \
+	device tree, for testing purpose
+
+LOCAL_DESTDIR := usr/lib/libiio-plugins
+
+LOCAL_SRC_FILES := \
+	tests/iio_test_plugin.c
+
+LOCAL_LIBRARIES := \
+	libiio \
+	libiio-plugins-private
+
+include $(BUILD_SHARED_LIBRARY)
+
+###############################################################################
+# libiio_test_plugin_main
+###############################################################################
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := iio_test
+LOCAL_CATEGORY_PATH := libs/libiio
+LOCAL_DESCRIPTION := program running automated tests by mean of the \
+	iio_test_plugin
+
+LOCAL_SRC_FILES := \
+	tests/iio_test_plugin_main.c
+
+LOCAL_LIBRARIES := \
+	libiio
+
+LOCAL_REQUIRED_MODULES := \
+	libiio_test_plugin
+
+include $(BUILD_EXECUTABLE)
