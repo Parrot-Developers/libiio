@@ -37,6 +37,8 @@ LOCAL_CFLAGS := -DHAVE_IPV6=1 \
 	-Diio_EXPORTS \
 	-fvisibility=hidden
 
+LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
+
 LOCAL_LDLIBS := -ldl
 
 include $(BUILD_LIBRARY)
