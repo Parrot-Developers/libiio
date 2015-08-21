@@ -133,9 +133,17 @@ __api struct iio_context * iio_create_context(const char *name,
  * @return On success, A pointer to an iio_context structure
  * @return On failure, NULL is returned and errno is set appropriately
  *
- * <b>NOTE:</b> This function will create a network context if the IIOD_REMOTE
- * environment variable is set to the hostname where the IIOD server runs. If
- * set to an empty string, the server will be discovered using ZeroConf.
+ * <b>NOTE:</b> This function will create a context from a plugin, if the
+ * IIO_BACKEND_PLUGIN environment variable is set.
+ * It's value must have the following format:<br/>
+ *     PLUGIN_NAME[:KEY1=VALUE1[:KEY2=VALUE2[...]]]
+ *   with (KEYX, VALUEX) pairs being the factory properties used to tune the
+ *   factory's constructor's behavior.
+ *   The meaning of keys and values are up to the plugin's implementation.<br />
+ * If IIO_BACKEND_PLUGIN isn't set, this function will create a network context
+ * if the IIOD_REMOTE environment variable is set to the hostname where the IIOD
+ * server runs.
+ * If set to an empty string, the server will be discovered using ZeroConf.
  * If the environment variable is not set, a local context will be created
  * instead. */
 __api struct iio_context * iio_create_default_context(void);

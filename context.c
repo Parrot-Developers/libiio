@@ -447,7 +447,7 @@ struct iio_context * iio_create_default_context(void)
 	 * the IIO_BACKEND_PLUGIN shall contain a string of the form :
 	 *   PLUGIN_NAME[:KEY1=VALUE1[:KEY2=VALUE2[...]]]
 	 *   with (KEYX, VALUEX) pairs being the factory properties used to
-	 *   tune the factory's constructor's behaviour
+	 *   tune the factory's constructor's behavior
 	 */
 	char *plugin_desc = getenv("IIO_BACKEND_PLUGIN");
 
