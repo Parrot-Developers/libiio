@@ -214,7 +214,7 @@ __api ssize_t iio_device_get_sample_size_mask(const struct iio_device *dev,
 __api int iio_context_factory_register(struct iio_context_factory *factory);
 __api int iio_context_factory_unregister(const char *name);
 __api const char * iio_context_factory_get_property(
-		struct iio_context_factory *factory, const char *key);
+		const struct iio_context_factory *factory, const char *key);
 __api void iio_context_dump_factories(void);
 
 

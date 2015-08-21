@@ -150,7 +150,7 @@ int iio_context_factory_unregister(const char *name)
 }
 
 const char * iio_context_factory_get_property(
-		struct iio_context_factory *factory, const char *key)
+		const struct iio_context_factory *factory, const char *key)
 {
 	const char *value;
 
