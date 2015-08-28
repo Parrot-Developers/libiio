@@ -12,16 +12,7 @@ LOCAL_CATEGORY_PATH := libs/libiio
 
 LOCAL_LIBRARIES := libxml2
 
-LOCAL_SRC_FILES := \
-	channel.c \
-	device.c \
-	context.c \
-	buffer.c \
-	utilities.c \
-	plugins.c \
-	local.c \
-	network.c \
-	xml.c
+LOCAL_SRC_FILES := $(call all-c-files-in,.)
 
 LOCAL_CFLAGS := -DHAVE_IPV6=1 \
 	-DHAVE_PTHREAD=0 \
