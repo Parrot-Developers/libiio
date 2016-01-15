@@ -238,7 +238,7 @@ static ssize_t read_all(void *dst, size_t len, int fd)
 {
 	uintptr_t ptr = (uintptr_t) dst;
 	ssize_t readsize;
-	int ret;
+	int ret = 0;
 
 	while (len > 0) {
 		do {
@@ -268,7 +268,7 @@ static ssize_t write_all(const void *src, size_t len, int fd)
 {
 	uintptr_t ptr = (uintptr_t) src;
 	ssize_t writtensize;
-	int ret;
+	int ret = 0;
 
 	while (len > 0) {
 		do {
