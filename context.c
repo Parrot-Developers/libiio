@@ -88,8 +88,8 @@ struct iio_context * iio_create_context(const char *name, const char *envz,
 
 	factory = get_context_factory(name);
 	if (!factory) {
-        ERROR("Cannot find factory called '%s'.\n"
-                "That can be due to missing plugins.\n", name);
+		ERROR("Cannot find factory called '%s'.\n"
+				"That can be due to missing plugins.\n", name);
 		return NULL;
     }
 
