@@ -65,7 +65,7 @@ void iio_init_plugins(void)
 
 	n = scandir(PLUGINS_DEFAULT_DIR, &namelist, pattern_filter, NULL);
 	if (n == -1) {
-		ERROR("%s scandir: %s\n", __func__, strerror(errno));
+		DEBUG("%s scandir: %s\n", __func__, strerror(errno));
 		return;
 	}
 

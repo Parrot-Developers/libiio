@@ -87,8 +87,11 @@ struct iio_context * iio_create_context(const char *name, const char *envz,
 	}
 
 	factory = get_context_factory(name);
-	if (!factory)
+	if (!factory) {
+        ERROR("Cannot find factory called '%s'.\n"
+                "That can be due to missing plugins.\n", name);
 		return NULL;
+    }
 
 	if (envz) {
 		ret = factory_set_properties(factory, envz, envz_len);
